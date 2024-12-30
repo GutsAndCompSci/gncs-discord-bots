@@ -1,4 +1,3 @@
-
 import discord
 from discord import app_commands
 import random
@@ -6,7 +5,10 @@ import json
 import asyncio
 import os
 import time
+from dotenv import load_dotenv
 from datetime import datetime, timedelta
+
+load_dotenv()
 
 ALLOWED_CHANNEL_ID = 0
 
@@ -564,5 +566,4 @@ async def spawn_lootbox():
 
     await channel.send(embed=embed, view=view)
 
-token = os.environ['TOKEN']
-client.run(token)
+client.run(os.getenv['CHAT_TOKEN'])
