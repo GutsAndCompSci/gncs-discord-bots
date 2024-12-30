@@ -1,0 +1,8 @@
+ffmpeg-python
+yt-dlp
+opuslib
+pynacl
+torch
+transformers
+python-dotenv
+spotipy
