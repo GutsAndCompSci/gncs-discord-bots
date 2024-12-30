@@ -566,4 +566,4 @@ async def spawn_lootbox():
 
     await channel.send(embed=embed, view=view)
 
-client.run(os.getenv['CHAT_TOKEN'])
+client.run(os.getenv['ECON_TOKEN'])
