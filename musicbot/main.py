@@ -6,6 +6,9 @@ import logging
 import os
 from discord.ui import Button, View
 import math
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 
@@ -312,6 +315,5 @@ async def skip(interaction: discord.Interaction, count: int = 1):
             await interaction.response.send_message(f"Skipped {count} songs")
     else:
         await interaction.response.send_message("Currently no audio is playing.", ephemeral=True)
-
-token = os.getenv("TOKEN")
-client.run(token)
+        
+client.run(os.getenv("MUSIC_TOKEN"))
