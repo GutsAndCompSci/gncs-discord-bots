@@ -8,6 +8,9 @@ import asyncio
 from typing import Optional
 import re
 import time
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 
@@ -442,5 +445,4 @@ async def serverstatus(interaction: discord.Interaction):
     else:
         await interaction.response.send_message("You don't have permission to use this command.", ephemeral=True)
 
-token = os.getenv("TOKEN")
-client.run(token)
+client.run(os.getenv("MOD_TOKEN"))
