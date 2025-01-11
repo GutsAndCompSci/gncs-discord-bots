@@ -8,9 +8,6 @@ import asyncio
 from typing import Optional
 import re
 import time
-from dotenv import load_dotenv
-
-load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 
@@ -24,7 +21,7 @@ client = discord.Client(intents=intents, activity=activity)
 starred_messages = set()
 tree = discord.app_commands.CommandTree(client)
 
-GUILD_ID = 0
+GUILD_ID = 1264746307076227163
 ROLES_FILE = "roles.json"
 BANS_FILE = "bans.json"
 MUTES_FILE = "mutes.json"
@@ -32,8 +29,8 @@ WARNINGS_FILE = "warnings.json"
 BANNED_WORDS = "banned_words.json"
 NOTES_FILE = "notes.json"
 STAR_EMOJI = '⭐'
-STARBOARD_CHANNEL_ID = 0
-WELCOME_CHANNEL_ID = 0
+STARBOARD_CHANNEL_ID = 1264756677169905675
+WELCOME_CHANNEL_ID = 1264746307076227166
 
 log_capture = []
 
@@ -345,17 +342,18 @@ async def membercount(interaction: discord.Interaction):
     else:
         await interaction.response.send_message("Could not retrieve the member count.", ephemeral=True)
 
-# @client.event
-# async def on_message(message):
-#     if message.author.bot:
-#         return
-#     if any(pattern.search(message.content) for pattern in banned_word_patterns):
-#         try:
-#             await message.delete()
-#             await message.channel.send(f"{message.author.mention}, your message contained banned words and has been deleted.")
-#         except discord.Forbidden:
-#             logging.error(f"Could not delete message in {message.channel.name} by {message.author.display_name}.")
-#         return
+
+@client.event
+async def on_message(message):
+    if message.author.bot:
+        return
+    if any(pattern.search(message.content) for pattern in banned_word_patterns):
+        try:
+            await message.delete()
+            await message.channel.send(f"{message.author.mention}, your message contained banned words and has been deleted.")
+        except discord.Forbidden:
+            logging.error(f"Could not delete message in {message.channel.name} by {message.author.display_name}.")
+        return
 
 @client.event
 async def on_raw_reaction_add(payload):
@@ -377,14 +375,13 @@ async def on_raw_reaction_add(payload):
                         for attachment in message.attachments:
                             if attachment.url.endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp')):
                                 embed.set_image(url=attachment.url)
-                                await starboard_channel.send(embed=embed)
-                                return
+                        await starboard_channel.send(embed=embed)
                     else:
                         await starboard_channel.send(embed=embed)
                         for attachment in message.attachments:
                             await starboard_channel.send(attachment.url)
-                        return
-                await starboard_channel.send(embed=embed)
+                else:
+                    await starboard_channel.send(embed=embed)
 @client.event
 async def on_member_join(member):
     welcome_channel = client.get_channel(WELCOME_CHANNEL_ID)
@@ -445,4 +442,5 @@ async def serverstatus(interaction: discord.Interaction):
     else:
         await interaction.response.send_message("You don't have permission to use this command.", ephemeral=True)
 
-client.run(os.getenv("MOD_TOKEN"))
+token = os.getenv("TOKEN")
+client.run(token)
