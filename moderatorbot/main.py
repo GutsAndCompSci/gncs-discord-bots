@@ -342,46 +342,54 @@ async def membercount(interaction: discord.Interaction):
     else:
         await interaction.response.send_message("Could not retrieve the member count.", ephemeral=True)
 
+with open(BANNED_WORDS) as f:
+    banned_words = json.load(f)
+    banned_word_patterns = [re.compile(word, re.IGNORECASE) for word in banned_words['banned_word_patterns']]
 
 @client.event
 async def on_message(message):
     if message.author.bot:
         return
-    if any(pattern.search(message.content) for pattern in banned_word_patterns):
+
+    content = message.content.lower()
+    if any(pattern.search(content) for pattern in banned_word_patterns):
         try:
             await message.delete()
-            await message.channel.send(f"{message.author.mention}, your message contained banned words and has been deleted.")
+            await message.channel.send(f"{message.author.mention}, your message was deleted for containing banned words.")
+            logging.info(f"Deleted message from {message.author.name} for banned words")
         except discord.Forbidden:
-            logging.error(f"Could not delete message in {message.channel.name} by {message.author.display_name}.")
+            logging.error(f"Failed to delete message from {message.author.name}")
         return
 
-@client.event
+
+@client.event 
 async def on_raw_reaction_add(payload):
     if payload.emoji.name == STAR_EMOJI:
         channel = client.get_channel(payload.channel_id)
         message = await channel.fetch_message(payload.message_id)
+
         if message.id not in starred_messages:
             reaction = discord.utils.get(message.reactions, emoji=STAR_EMOJI)
             if reaction and reaction.count >= 3:
                 starred_messages.add(message.id)
                 starboard_channel = client.get_channel(STARBOARD_CHANNEL_ID)
 
-                embed = discord.Embed(description=message.content, color=discord.Color.gold())
+                embed = discord.Embed(
+                    description=message.content or "No content",
+                    color=discord.Color.gold()
+                )
                 embed.set_author(name=message.author.display_name, icon_url=message.author.avatar.url)
-                embed.add_field(name="Jump to message", value=f"[Click here]({message.jump_url})", inline=False)
+                embed.add_field(name="Source", value=f"[Jump to message]({message.jump_url})", inline=False)
+                embed.timestamp = message.created_at
 
+                # Handle image attachments first
                 if message.attachments:
-                    if any(attachment.url.endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp')) for attachment in message.attachments):
-                        for attachment in message.attachments:
-                            if attachment.url.endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp')):
-                                embed.set_image(url=attachment.url)
-                        await starboard_channel.send(embed=embed)
-                    else:
-                        await starboard_channel.send(embed=embed)
-                        for attachment in message.attachments:
-                            await starboard_channel.send(attachment.url)
-                else:
-                    await starboard_channel.send(embed=embed)
+                    for attachment in message.attachments:
+                        if any(attachment.filename.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']):
+                            embed.set_image(url=attachment.url)
+                            break
+
+                await starboard_channel.send(embed=embed)
 @client.event
 async def on_member_join(member):
     welcome_channel = client.get_channel(WELCOME_CHANNEL_ID)
