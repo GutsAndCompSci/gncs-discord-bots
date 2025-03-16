@@ -1,7 +1,6 @@
 # 🤖 <br> G&CS Discord Bots
 
-This is the actively maintained copy of [zeus's bot hub](https://github.com/zeusssz/discord-bot-hub) used in production.
-Used by the Endless Community/Les Catacombes discord server
+This is the actively maintained copy of [zeus's bot hub](https://github.com/zeusssz/discord-bot-hub) used in production by the Endless Community/Les Catacombes discord server.
 
 # 📦 Requirements
 - pip
